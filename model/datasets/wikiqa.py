@@ -77,6 +77,7 @@ class WikiQA(BaseQA):
                 neg.append(to_ints(neg_answer, self.amax))
                 neg_len.append(len(neg_answer.split()))
                 labels.append(to_ints(label, self.amax))
+                print(question, pos_answer, neg_answer)
 
         return questions, questions_len, pos, pos_len, neg, neg_len, labels
 
