@@ -109,7 +109,6 @@ class HyperQA:
         return self._dev_set
 
     def _get_pair_feed_dict(self, data, mode='training', lr=None):
-        print(data[5])
 
         if lr is None:
             lr = self.args.learn_rate
