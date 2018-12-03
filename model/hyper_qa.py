@@ -98,7 +98,7 @@ class HyperQA:
     def test_set(self):
         if self._test_set is None:
             tf.logging.info('Create test split')
-            self._test_set = dataset.splits[dataset.Parts.test.name]
+            self._test_set = dataset[dataset.Parts.test.name]
         return self._test_set
 
     @property
@@ -455,7 +455,7 @@ class HyperQA:
     def predict(self, data: Tuple = None, bsz = 128) -> None:
         if not data:
             data = self.test_set
-        questions, answers = data[0], data[2]
+        questions, answers = data['Question'], data['Sentence']
         num_batches = int(len(questions) / bsz)
         # num_batches = 5
         all_preds = []
