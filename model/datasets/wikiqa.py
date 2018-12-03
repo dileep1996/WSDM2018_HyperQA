@@ -61,7 +61,6 @@ class WikiQA(BaseQA):
                     pos = pos_answers[0]
                     for neg in neg_answers:
                         result.append([pos, neg, pos])
-            print(result)
             return result
 
         questions, questions_len, pos, pos_len, neg, neg_len, labels = [], [], [], [], [], [], []
