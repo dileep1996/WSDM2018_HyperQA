@@ -452,12 +452,24 @@ class HyperQA:
 
         return mrr, all_preds
 
-    def predict(self, data: Tuple) -> None:
-        feed_dict = self.get_feed_dict(data, mode='predict')
-        self.saver.restore(self.sess, self.ckpt_path)
-        predictions = self.sess.run(self.predict_op, feed_dict=feed_dict)
-        tf.logging.info(predictions)
-        return predictions
+    def predict(self, data: Tuple = None, bsz = 128) -> None:
+        if not data:
+            data = self.test_set
+        questions, answers = data[0], data[2]
+        num_batches = int(len(questions) / bsz)
+        # num_batches = 5
+        all_preds = []
+
+        for i in tqdm(range(num_batches + 1)):
+            batch = batchify(data, i, bsz, max_sample=len(questions))
+            if len(batch) == 0:
+                continue
+
+            feed_dict = self.get_feed_dict(batch[:-1], mode='testing')
+            loss, predictions = self.sess.run([self.cost, self.predict_op], feed_dict)
+            all_preds.extend(predictions)
+        all_preds = np.array(all_preds)
+        return all_preds
 
 
 def test_predict():
@@ -510,5 +522,9 @@ if __name__ == '__main__':
     tf.logging.info('HyperQA created')
 
     hyper_qa.train()
-
+    preds = hyper_qa.predict()
+    with open('answer.txt','w') as f:
+        for i in preds:
+            f.write(str(i) +'\n')
+ 
     # test_predict()
