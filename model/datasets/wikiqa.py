@@ -65,7 +65,7 @@ class WikiQA(BaseQA):
             return result
 
         questions, questions_len, pos, pos_len, neg, neg_len, labels = [], [], [], [], [], [], []
-        print(dataset)
+        dataset = pd.DataFrame(dataset)
         for question in dataset.Question.unique():
             answers = get_pos_neg(dataset[dataset.Question == question][['Sentence', 'Label']])
             for answer in answers:
