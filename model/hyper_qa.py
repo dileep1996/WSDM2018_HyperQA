@@ -454,7 +454,7 @@ class HyperQA:
 
     def predict(self, data: Tuple = None, bsz = 128) -> None:
         if not data:
-            data = self.test_data_set
+            data = self.dataset.test_data_set
         questions, answers = data['Question'], data['Sentence']
         num_batches = int(len(questions) / bsz)
         # num_batches = 5
