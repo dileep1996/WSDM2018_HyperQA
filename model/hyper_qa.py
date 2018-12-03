@@ -249,6 +249,8 @@ class HyperQA:
                 self.emb_placeholder = tf.placeholder(tf.float32, [self.vocab_size, self.args.emb_size])
 
             self.batch_size = tf.shape(self.q1_inputs)[0]
+            print(self.q1_inputs)
+            print(self.q3_inputs)
 
             q1_inputs, self.qmax = clip_sentence(self.q1_inputs, self.q1_len)
             q2_inputs, self.a1max = clip_sentence(self.q2_inputs, self.q2_len)
