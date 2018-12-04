@@ -517,11 +517,10 @@ if __name__ == '__main__':
     if not args.no_train:
         hyper_qa.train()
 
-    if not args.no_eval:
-        preds = hyper_qa.test(dataset, dataset.test_data_set)
-        tf.logging.info('evaluating model on test set')
-        print(os.getcwd())
-        with open('answer.txt', 'w') as f:
-            for line in preds:
-                f.write(str(line) + '\n')
+    preds = hyper_qa.test(dataset, dataset.test_data_set)
+    tf.logging.info('evaluating model on test set')
+    print(os.getcwd())
+    with open('answer.txt', 'w') as f:
+        for line in preds:
+            f.write(str(line) + '\n')
     # test_predict()
