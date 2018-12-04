@@ -80,6 +80,27 @@ class WikiQA(BaseQA):
 
         return questions, questions_len, pos, pos_len, neg, neg_len, labels
 
+    def create_test_feed_data(self, dataset, many=False):
+
+        def to_ints(text, size, pad=0):
+            # return text
+            text_ints = [self.word_to_index[word] for word in text.split()]
+            while len(text_ints) < size:
+                text_ints.append(pad)
+            return text_ints[:size]
+
+        questions, questions_len, pos, pos_len = [], [], [], []
+        dataset = pd.DataFrame(dataset)
+        for idx, row in dataset.iterrows():
+            pos_answer = row['Sentence']
+            question = row['Question']
+            questions.append(to_ints(question, self.qmax))
+            questions_len.append(len(question.split()))
+            pos.append(to_ints(pos_answer, self.amax))
+            pos_len.append(len(pos_answer.split()))
+
+        return questions, questions_len, pos, pos_len
+    
     def display(self, part='train'):
         for tup in zip(*self.feed_data):
             print(tup[0])
