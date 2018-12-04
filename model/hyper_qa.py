@@ -115,21 +115,35 @@ class HyperQA:
             assert (np.min(data[1]) > 0)
             assert (np.min(data[3]) > 0)
             assert (np.min(data[5]) > 0)
-
-        feed_dict = {
-            # question
-            self.q1_inputs: data[0],
-            self.q1_len: data[1],
-            # positive answer
-            self.q2_inputs: data[2],
-            self.q2_len: data[3],
-            # negative answer
-            self.q3_inputs: data[4],
-            self.q3_len: data[5],
-            self.learn_rate: lr,
-            self.dropout: self.args.dropout,
-            self.emb_dropout: self.args.emb_dropout
-        }
+        
+        if mode == 'testing':
+            feed_dict = {
+                # question
+                self.q1_inputs: data[0],
+                self.q1_len: data[1],
+                # positive answer
+                self.q2_inputs: data[2],
+                self.q2_len: data[3],
+                # negative answer
+                self.learn_rate: lr,
+                self.dropout: self.args.dropout,
+                self.emb_dropout: self.args.emb_dropout
+            }
+        else:
+             feed_dict = {
+                # question
+                self.q1_inputs: data[0],
+                self.q1_len: data[1],
+                # positive answer
+                self.q2_inputs: data[2],
+                self.q2_len: data[3],
+                # negative answer
+                self.q3_inputs: data[4],
+                self.q3_len: data[5],
+                self.learn_rate: lr,
+                self.dropout: self.args.dropout,
+                self.emb_dropout: self.args.emb_dropout
+            }
 
         if mode != 'training':
             feed_dict[self.dropout] = 1.0
@@ -451,17 +465,15 @@ class HyperQA:
         return mrr, all_preds
 
     def predict(self, data: Tuple) -> None:
-        feed_dict = self.get_feed_dict(data, mode='predict')
+        feed_dict = self.get_feed_dict(data, mode='testing')
         self.saver.restore(self.sess, self.ckpt_path)
         predictions = self.sess.run(self.predict_op, feed_dict=feed_dict)
         tf.logging.info(predictions)
         return predictions
 
     def test(self, dataset, df, bsz=128):
-        data_list = []
-        for idx, row in df.iterrows():
-            data_list.append(dataset.create_feed_data(row, many=True))
-        return self.predict(tuple(data_list))
+        data = dataset.create_test_feed_data(df)
+        return self.predict(data)
 
 
 def test_predict():
