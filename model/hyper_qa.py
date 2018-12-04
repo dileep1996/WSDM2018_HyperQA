@@ -1,23 +1,21 @@
 #!/usr/bin/env python
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division
 
 import os
 import pickle
 import timeit
-from typing import Tuple, List, Dict
-
-from tqdm import tqdm
-import numpy as np
 from collections import defaultdict
-from sklearn.metrics import accuracy_score
+from parser import build_parser
+from typing import Tuple
 
+import numpy as np
 from datasets.Base import BaseQA
 from datasets.wikiqa import WikiQA
-from glove import load_embedding_from_disks
-from parser import build_parser
-from utilities import *
 from datasets.yahooqa import YahooQA
+from glove import load_embedding_from_disks
+from sklearn.metrics import accuracy_score
+from tqdm import tqdm
+from utilities import *
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -77,8 +75,8 @@ class HyperQA:
 
         self.build_graph()
         _config_proto = tf.ConfigProto(
-            allow_soft_placement=True,
-            intra_op_parallelism_threads=8)
+                allow_soft_placement=True,
+                intra_op_parallelism_threads=8)
         self.sess = tf.Session(graph=self.graph, config=_config_proto)
 
         with self.graph.as_default():
@@ -158,26 +156,26 @@ class HyperQA:
         use_mode = 'FC'
 
         q1_embed = projection_layer(
-            q1_embed,
-            self.args.rnn_size,
-            name='trans_proj',
-            activation=translate_act,
-            initializer=self.initializer,
-            dropout=self.dropout,
-            reuse=reuse,
-            use_mode=use_mode,
-            num_layers=self.args.num_proj
+                q1_embed,
+                self.args.rnn_size,
+                name='trans_proj',
+                activation=translate_act,
+                initializer=self.initializer,
+                dropout=self.dropout,
+                reuse=reuse,
+                use_mode=use_mode,
+                num_layers=self.args.num_proj
         )
         q2_embed = projection_layer(
-            q2_embed,
-            self.args.rnn_size,
-            name='trans_proj',
-            activation=translate_act,
-            initializer=self.initializer,
-            dropout=self.dropout,
-            reuse=True,
-            use_mode=use_mode,
-            num_layers=self.args.num_proj
+                q2_embed,
+                self.args.rnn_size,
+                name='trans_proj',
+                activation=translate_act,
+                initializer=self.initializer,
+                dropout=self.dropout,
+                reuse=True,
+                use_mode=use_mode,
+                num_layers=self.args.num_proj
         )
 
         rnn_size = self.args.rnn_size
@@ -257,10 +255,10 @@ class HyperQA:
             with tf.variable_scope('embedding_layer'):
                 if self.args.pretrained == 1:
                     self.embeddings = tf.Variable(
-                        tf.constant(0.0, shape=[self.vocab_size, self.args.emb_size]),
-                        # trainable=self.args.trainable,
-                        trainable=False,
-                        name="embeddings"
+                            tf.constant(0.0, shape=[self.vocab_size, self.args.emb_size]),
+                            # trainable=self.args.trainable,
+                            trainable=False,
+                            name="embeddings"
                     )
                     self.embeddings_init = self.embeddings.assign(self.emb_placeholder)
                 else:
@@ -315,20 +313,20 @@ class HyperQA:
                 with tf.name_scope('optimizer'):
                     if self.args.opt == 'SGD':
                         self.opt = tf.train.GradientDescentOptimizer(
-                            learning_rate=lr)
+                                learning_rate=lr)
                     elif self.args.opt == 'Adam':
                         self.opt = tf.train.AdamOptimizer(
-                            learning_rate=lr)
+                                learning_rate=lr)
                     elif self.args.opt == 'Adadelta':
                         self.opt = tf.train.AdadeltaOptimizer(
-                            learning_rate=lr,
-                            rho=0.9)
+                                learning_rate=lr,
+                                rho=0.9)
                     elif self.args.opt == 'Adagrad':
                         self.opt = tf.train.AdagradOptimizer(
-                            learning_rate=lr)
+                                learning_rate=lr)
                     elif self.args.opt == 'RMS':
                         self.opt = tf.train.RMSPropOptimizer(
-                            learning_rate=lr)
+                                learning_rate=lr)
                     elif self.args.opt == 'Moment':
                         self.opt = tf.train.MomentumOptimizer(lr, 0.9)
                     # elif (self.args.opt == 'Adamax'):
@@ -343,8 +341,8 @@ class HyperQA:
 
                     if self.args.clip_norm > 0:
                         grads, _ = tf.clip_by_global_norm(
-                            tf.gradients(self.cost, tvars),
-                            self.args.clip_norm)
+                                tf.gradients(self.cost, tvars),
+                                self.args.clip_norm)
                         with tf.name_scope('gradients'):
                             gradients = self.opt.compute_gradients(self.cost)
                             # Gradient Conversion
@@ -400,7 +398,7 @@ class HyperQA:
 
         def print_results(str, result):
             tf.logging.info(str.ljust(20, ' ') + '  '.join(''.join(
-                filter(lambda w: w != '<user>', [self.index_to_word[w] for w in result])
+                    filter(lambda w: w != '<user>', [self.index_to_word[w] for w in result])
             ).split('9')))
 
         def to_str(li):
@@ -452,38 +450,34 @@ class HyperQA:
 
         return mrr, all_preds
 
-    def predict(self, data: Tuple = None, bsz = 128) -> None:
-        if not data:
-            data = self.dataset.test_data_set
-        questions, answers = data['Question'], data['Sentence']
-        num_batches = int(len(questions) / bsz)
-        # num_batches = 5
-        all_preds = []
+    def predict(self, data: Tuple) -> None:
+        feed_dict = self.get_feed_dict(data, mode='predict')
+        self.saver.restore(self.sess, self.ckpt_path)
+        predictions = self.sess.run(self.predict_op, feed_dict=feed_dict)
+        tf.logging.info(predictions)
+        return predictions
 
-        for i in tqdm(range(num_batches + 1)):
-            batch = batchify(data, i, bsz, max_sample=len(questions))
-            if len(batch) == 0:
-                continue
-
-            feed_dict = self.get_feed_dict(batch[:-1], mode='testing')
-            loss, predictions = self.sess.run([self.cost, self.predict_op], feed_dict)
-            all_preds.extend(predictions)
-        all_preds = np.array(all_preds)
-        return all_preds
+    def test(self, dataset, df, bsz=128):
+        data_list = []
+        for idx, row in df.iterrows():
+            data_list.append(dataset.create_feed_data({row['Question']: row['answer']}, many=True))
+        return self.predict(tuple(data_list))
 
 
 def test_predict():
-
     num_neg = 3
     top_n = 10
 
-
     # question = 'what has been the status regarding creative commons since june 2012'
-    # correct = 'it has been possible to select a creative commons license as the default , allowing other users to reuse and remix the material if it is free of copyright. .'
+    # correct = 'it has been possible to select a creative commons license as the default , allowing other users to
+    # reuse and remix the material if it is free of copyright. .'
 
-    question = 'how  do i convince parents to buy mr an ipod i have had a zen micro for about a year is that a decent amount of time'
-    correct = 'do a bunch of extra chores first then after they tell you how much they appreciate all your hard work spring it on them and tell them how much it would mean to you to have a new ipod'
-
+    question = 'how  do i convince parents to buy mr an ipod i have had a zen micro for about a year is that a decent ' \
+               '' \
+               '' \
+               'amount of time'
+    correct = 'do a bunch of extra chores first then after they tell you how much they appreciate all your hard work ' \
+              'spring it on them and tell them how much it would mean to you to have a new ipod'
 
     tf.logging.info('start load answers')
     answers = pickle.load(open('/tmp/ans.pkl', 'rb'))
@@ -520,7 +514,12 @@ if __name__ == '__main__':
 
     hyper_qa = HyperQA(dataset)
     tf.logging.info('HyperQA created')
+    if not args.no_train:
+        hyper_qa.train()
 
-    hyper_qa.train()
- 
+    if not args.no_eval:
+        preds = hyper_qa.test(dataset, dataset.test_data_set)
+        with open('answer.txt', 'w') as f:
+            for line in preds:
+                f.write(str(line) + '\n')
     # test_predict()
