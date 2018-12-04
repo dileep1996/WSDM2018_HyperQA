@@ -517,6 +517,9 @@ if __name__ == '__main__':
     if not args.no_train:
         hyper_qa.train()
 
+    cols = ['Question', 'Sentence', 'Label']
+    test_path = os.path.join(args.dataset, 'WikiQA-test.tsv')
+    test_data_set = pd.read_csv(test_path, sep='\t')[cols]
     preds = hyper_qa.test(dataset, dataset.test_data_set)
     tf.logging.info('evaluating model on test set')
     print(os.getcwd())
