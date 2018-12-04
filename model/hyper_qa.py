@@ -430,7 +430,7 @@ class HyperQA:
             if len(batch) == 0:
                 continue
 
-            feed_dict = self.get_feed_dict(batch[:-1], mode='testing')
+            feed_dict = self.get_feed_dict(batch[:-1], mode='evaluating')
             loss, predictions = self.sess.run([self.cost, self.predict_op], feed_dict)
             all_preds.extend(predictions)
 
