@@ -464,12 +464,22 @@ class HyperQA:
 
         return mrr, all_preds
 
-    def predict(self, data: Tuple) -> None:
-        feed_dict = self.get_feed_dict(data, mode='testing')
-        self.saver.restore(self.sess, self.ckpt_path)
-        predictions = self.sess.run(self.predict_op, feed_dict=feed_dict)
+    def predict(self, data: Tuple = None, bsz = 128) -> None:
         tf.logging.info(predictions)
-        return predictions
+        questions, answers = data['Question'], data['Sentence']
+        num_batches = int(len(questions) / bsz)
+        self.saver.restore(self.sess, self.ckpt_path)
+        all_preds = []
+        for i in tqdm(range(num_batches + 1), total = num_batches, position = 0):
+            batch = batchify(data, i, bsz, max_sample=len(questions))
+            if len(batch) == 0:
+                continue
+
+            feed_dict = self.get_feed_dict(batch[:-1], mode='testing')
+            predictions = self.sess.run(self.predict_op, feed_dict=feed_dict)
+            all_preds.extend(predictions)
+        all_preds = np.array(all_preds)
+        return all_preds
 
     def test(self, dataset, df, bsz=128):
         data = dataset.create_test_feed_data(df)
