@@ -465,7 +465,7 @@ class HyperQA:
         return mrr, all_preds
 
     def predict(self, data: Tuple = None, bsz = 128) -> None:
-        tf.logging.info(predictions)
+        tf.logging.info('predictions')
         questions, answers = data['Question'], data['Sentence']
         num_batches = int(len(questions) / bsz)
         self.saver.restore(self.sess, self.ckpt_path)
