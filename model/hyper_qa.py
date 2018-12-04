@@ -460,7 +460,7 @@ class HyperQA:
     def test(self, dataset, df, bsz=128):
         data_list = []
         for idx, row in df.iterrows():
-            data_list.append(dataset.create_feed_data({row['Question']: row['answer']}, many=True))
+            data_list.append(dataset.create_feed_data({row['Question']: row['Sentence']}, many=True))
         return self.predict(tuple(data_list))
 
 
