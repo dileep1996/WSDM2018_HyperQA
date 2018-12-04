@@ -192,6 +192,9 @@ def build_parser():
     ps('--use_cudnn', dest='use_cudnn', type=int, default=0)
     ps('--use_cove', dest='use_cove', type=int, default=0)
     ps('--glove', dest='glove', type=str)
+    ps('--no_train', dest='no_train', type=bool, default = 0)
+    ps('--no_eval', dest='no_eval', type=bool, default = 1)
+    
     ps('--ckpt_path', dest='ckpt_path', type=str, help='Model checkpoint path', default='/tmp/model-ckpt')
 
     return parser
