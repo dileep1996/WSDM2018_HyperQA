@@ -522,9 +522,5 @@ if __name__ == '__main__':
     tf.logging.info('HyperQA created')
 
     hyper_qa.train()
-    preds = hyper_qa.predict()
-    with open('answer.txt','w') as f:
-        for i in preds:
-            f.write(str(i) +'\n')
  
     # test_predict()
