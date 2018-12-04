@@ -520,7 +520,7 @@ if __name__ == '__main__':
     cols = ['Question', 'Sentence', 'Label']
     test_path = os.path.join(args.dataset, 'WikiQA-test.tsv')
     test_data_set = pd.read_csv(test_path, sep='\t')[cols]
-    preds = hyper_qa.test(dataset, dataset.test_data_set)
+    preds = hyper_qa.test(dataset, test_data_set)
     tf.logging.info('evaluating model on test set')
     print(os.getcwd())
     with open('answer.txt', 'w') as f:
