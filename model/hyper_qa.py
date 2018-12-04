@@ -475,7 +475,7 @@ class HyperQA:
             if len(batch) == 0:
                 continue
 
-            feed_dict = self.get_feed_dict(batch[:-1], mode='testing')
+            feed_dict = self.get_feed_dict(batch, mode='testing')
             predictions = self.sess.run(self.predict_op, feed_dict=feed_dict)
             all_preds.extend(predictions)
         all_preds = np.array(all_preds)
