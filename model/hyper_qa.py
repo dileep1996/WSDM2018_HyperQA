@@ -96,7 +96,7 @@ class HyperQA:
     def test_set(self):
         if self._test_set is None:
             tf.logging.info('Create test split')
-            self._test_set = dataset[dataset.Parts.test.name]
+            self._test_set = dataset.splits[dataset.Parts.test.name]
         return self._test_set
 
     @property
