@@ -19,13 +19,14 @@ class WikiQA(BaseQA):
         cols = ['Question', 'Sentence', 'Label']
         self.dataset[self.Parts.train.name] = pd.read_csv(train_path, sep='\t')[cols]
         self.dataset[self.Parts.dev.name] = pd.read_csv(dev_path, sep='\t')[cols]
-        self.dataset[self.Parts.test.name] = pd.read_csv(dev_path, sep='\t')[cols]
-        self.test_data_set =  pd.read_csv(test_path, sep='\t')[cols]
+        self.dataset[self.Parts.test.name] = pd.read_csv(test_path, sep='\t')[cols]
 
     def _create_splits(self):
         for part in self.parts:
             if part == self.Parts.train.name:
                 self.splits[part] = self.create_feed_data(self.dataset[part], many=False)
+            elif part == self.Parts.test.name:
+                self.splits[part] = self.create_test_feed_data(self.dataset[part])
             else:
                 self.splits[part] = self.create_feed_data(self.dataset[part], many=True)
 
