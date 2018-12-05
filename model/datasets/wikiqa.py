@@ -41,28 +41,23 @@ class WikiQA(BaseQA):
 
         def get_pos_neg(answer_tups):
             pos_answers = []
-            all_neg_answers = dataset.loc[dataset.Label == 0].Sentence.unique()
-            neg_answers = np.random.choice(all_neg_answers, self.num_neg, replace=False)
+            neg_answers = []
             for idx, (answer, label) in answer_tups.iterrows():
                 if label == 1:
                     pos_answers.append(answer)
                 elif label == 0:
-                    pass
+                    neg_answers.append(answer)
                 else:
                     raise ValueError('Neither pos nor neg value: {}'.format(label))
             result = []
-            if many:
-                if len(pos_answers) > 0 and len(neg_answers) > 0:
-                    pos = pos_answers[0]
-                    neg = neg_answers[0]
+            pos = pos_answers[0]
+            i = 0
+            for neg in neg_answers:
+                if i< self.num_neg:
                     result.append([pos, neg, pos])
-                    for neg in neg_answers:
-                        result.append([neg, pos, pos])
-            else:
-                if len(pos_answers) > 0:
-                    pos = pos_answers[0]
-                    for neg in neg_answers:
-                        result.append([pos, neg, pos])
+                else:
+                    break
+                i+=1
             return result
 
         questions, questions_len, pos, pos_len, neg, neg_len, labels = [], [], [], [], [], [], []
