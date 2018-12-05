@@ -464,7 +464,8 @@ class HyperQA:
 
         return mrr, all_preds
 
-    def predict(self, data: Tuple = None, bsz = 128) -> None:
+    def predict(self, bsz = 128) -> None:
+        data = self.test_set
         tf.logging.info('predictions')
         questions, answers = data[0], data[2]
         num_batches = int(len(questions) / bsz)
@@ -481,9 +482,8 @@ class HyperQA:
         all_preds = np.array(all_preds)
         return all_preds
 
-    def test(self, dataset, df, bsz=128):
-        data = dataset.create_test_feed_data(df)
-        return self.predict(data)
+    def test(self, bsz=128):
+        return self.predict(bsz)
 
 
 def test_predict():
@@ -538,12 +538,8 @@ if __name__ == '__main__':
     tf.logging.info('HyperQA created')
     if not args.no_train:
         hyper_qa.train()
-
-    cols = ['Question', 'Sentence', 'Label']
-    test_path = os.path.join(args.dataset, 'WikiQA-test.tsv')
-    test_data_set = pd.read_csv(test_path, sep='\t')[cols]
-    preds = hyper_qa.test(dataset, test_data_set)
     tf.logging.info('evaluating model on test set')
+    preds = hyper_qa.test()
     print(os.getcwd())
     with open('answer.txt', 'w') as f:
         for line in preds:
