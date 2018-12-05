@@ -50,14 +50,18 @@ class WikiQA(BaseQA):
                 else:
                     raise ValueError('Neither pos nor neg value: {}'.format(label))
             result = []
-            pos = pos_answers[0]
-            i = 0
-            for neg in neg_answers:
-                if i< self.num_neg:
+            if many:
+                if len(pos_answers) > 0 and len(neg_answers) > 0:
+                    pos = pos_answers[0]
+                    neg = neg_answers[0]
                     result.append([pos, neg, pos])
-                else:
-                    break
-                i+=1
+                    for neg in neg_answers:
+                        result.append([neg, pos, pos])
+            else:
+                if len(pos_answers) > 0:
+                    pos = pos_answers[0]
+                    for neg in neg_answers:
+                        result.append([pos, neg, pos])
             return result
 
         questions, questions_len, pos, pos_len, neg, neg_len, labels = [], [], [], [], [], [], []
