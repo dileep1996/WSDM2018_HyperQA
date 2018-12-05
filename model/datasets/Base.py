@@ -32,6 +32,10 @@ class BaseQA:
     def create_feed_data(self, dataset, many=False):
         raise NotImplemented
 
+    def create_test_feed_data(self, dataset, many=False):
+        raise NotImplemented
+        
+
     @property
     def splits(self):
         if self._splits is None:
@@ -44,8 +48,8 @@ class BaseQA:
                     random.shuffle(keys)
                     shuffled = {key: ds[key] for key in keys}
                     self._splits[part] = self.create_feed_data(shuffled, many=False)
-                if part == self.Parts.test.name:
-                    self._splits[part] = None
+                elif part == self.Parts.test.name:
+                    self._splits[part] = self.create_test_feed_data(self.dataset[part], many=True)
                 else:
                     self._splits[part] = self.create_feed_data(self.dataset[part], many=True)
         return self._splits
