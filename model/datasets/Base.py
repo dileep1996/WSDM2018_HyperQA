@@ -44,6 +44,8 @@ class BaseQA:
                     random.shuffle(keys)
                     shuffled = {key: ds[key] for key in keys}
                     self._splits[part] = self.create_feed_data(shuffled, many=False)
+                if if part == self.Parts.test.name:
+                    self._splits[part] = None
                 else:
                     self._splits[part] = self.create_feed_data(self.dataset[part], many=True)
         return self._splits
