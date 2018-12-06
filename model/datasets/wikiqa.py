@@ -44,9 +44,9 @@ class WikiQA(BaseQA):
             neg_answers = []
             for idx, (answer, label) in answer_tups.iterrows():
                 if label == 1:
-                    pos_answers.append(answer)
+                    pos_answers.append(str(answer))
                 elif label == 0:
-                    neg_answers.append(answer)
+                    neg_answers.append(str(answer))
                 else:
                     raise ValueError('Neither pos nor neg value: {}'.format(label))
             result = []
@@ -92,8 +92,8 @@ class WikiQA(BaseQA):
         questions, questions_len, pos, pos_len = [], [], [], []
         dataset = pd.DataFrame(dataset)
         for idx, row in dataset.iterrows():
-            pos_answer = row['Sentence']
-            question = row['Question']
+            pos_answer = str(row['Sentence'])
+            question = str(row['Question'])
             questions.append(to_ints(question, self.qmax))
             questions_len.append(len(question.split()))
             pos.append(to_ints(pos_answer, self.amax))
