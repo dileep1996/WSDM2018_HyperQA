@@ -78,7 +78,7 @@ class WikiQA(BaseQA):
                 neg_len.append(len(neg_answer.split()))
                 labels.append(to_ints(label, self.amax))
         
-        df = pd.DataFrame({'1': questions, '2': ques_len, '3': pos,'4': pos_len, '5': neg, '6': neg_len, '7': labels})
+        df = pd.DataFrame({'1': questions, '2': questions_len, '3': pos,'4': pos_len, '5': neg, '6': neg_len, '7': labels})
         if not many:
             print("shuffling training rows")
             df = df.sample(frac=1).reset_index(drop=True)
