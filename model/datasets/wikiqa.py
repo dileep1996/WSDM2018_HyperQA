@@ -34,7 +34,7 @@ class WikiQA(BaseQA):
 
         def to_ints(text, size, pad=0):
             # return text
-            text_ints = [self.word_to_index[word] for word in text.split()]
+            text_ints = [self.word_to_index[word] for word in str(text).split()]
             while len(text_ints) < size:
                 text_ints.append(pad)
             return text_ints[:size]
@@ -84,7 +84,7 @@ class WikiQA(BaseQA):
 
         def to_ints(text, size, pad=0):
             # return text
-            text_ints = [self.word_to_index[word] for word in text.split()]
+            text_ints = [self.word_to_index[word] for word in str(text).split()]
             while len(text_ints) < size:
                 text_ints.append(pad)
             return text_ints[:size]
