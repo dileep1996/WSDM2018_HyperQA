@@ -77,8 +77,12 @@ class WikiQA(BaseQA):
                 neg.append(to_ints(neg_answer, self.amax))
                 neg_len.append(len(neg_answer.split()))
                 labels.append(to_ints(label, self.amax))
-
-        return questions, questions_len, pos, pos_len, neg, neg_len, labels
+        
+        df = pd.DataFrame({'1': questions, '2': ques_len, '3': pos,'4': pos_len, '5': neg, '6': neg_len, '7': labels})
+        if not many:
+            print("shuffling training rows")
+            df = df.sample(frac=1).reset_index(drop=True)
+        return df['1'].tolist(),df['2'].tolist(),df['3'].tolist(), df['4'].tolist(), df['5'].tolist(), df['6'].tolist(), df['7'].tolist()
 
     def create_test_feed_data(self, dataset, many=False):
 
